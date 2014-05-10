@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html ng-app="ionic.example">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>丽行动${goods.goodsName}</title>
+    <link rel="stylesheet" href="${request.contextPath}/css/ionic.min.css">
+    <script src="${request.contextPath}/js/ionic.min.js"></script>
+    <script src="${request.contextPath}/js/ionic.bundle.min.js"></script>
+    <script src="${request.contextPath}/js/main.js"></script>
+
+    <style>
+        .tit {
+            background-color: #FFFFCC;
+            border-top-left-radius: 1em;
+            border-top-right-radius: 1em;
+        }
+        .jpButton {
+            border-bottom-left-radius: 1em;
+            border-bottom-right-radius: 1em;
+        }
+        .cardDiv {
+            background-color: white;
+            box-shadow: 2px 2px 2px 2px #D4BFBF;
+            border: 1px;
+            border-radius: 10px;
+            -moz-border-radius: 10px;
+        }
+        .cardsPanel {
+            text-align: center;
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+        .price {
+            position: absolute;
+            z-index: 10;
+            padding: 1.125em .625em;
+            width: auto;
+            height: 50px;
+            min-height: 0;
+            top: 0;
+            left: 0;
+            bottom: auto;
+            text-shadow: 0 1px 0 #111;
+            color: #FF3333;
+            background: rgba(0, 0, 0, 0.6);
+            background: #ccc 9;
+            filter: Alpha(opacity=60);
+            -webkit-border-bottom-right-radius: .3125em;
+            border-bottom-right-radius: .3125em;
+        }
+    </style>
+    <script type="text/javascript" src="${request.contextPath}/js/jquery-2.0.0.min.js"></script>
+    <script type="application/javascript">
+        $(function(){
+            var divCtrl = angular.element($(".cardsPanel"));
+            var scope = divCtrl.scope();
+            var timeId;
+            var goodsId = $('#goodsId').val();
+            //更新最高价
+            $.ajax({
+                type:"POST",
+                url:"${request.contextPath}/goods/get-highest-price/"+goodsId
+            }).done(function(msg){
+                $("#highestPrice").html(msg.userPrice);
+            });
+            $('#bidbtn').click(function (e) {
+                var userId = $('#userId').val();
+                var price = $('#userPrice').val();
+
+                if(userId == '' || price == ''){
+                    if(userId == ''){
+                        $('#userId').css({border: 'red 1px solid'}).focus(function() {//这里为输入错误的样式
+                            $('#userId').css({border: '#ccc 0px solid'});//这里为输入正确后的样式
+                        });
+                    }
+                    if(price == ''){
+                        $('#userPrice').css({border: 'red 1px solid'}).focus(function() {//这里为输入错误的样式
+                            $('#userPrice').css({border: '#ccc 0px solid'});//这里为输入正确后的样式
+                        });
+                    }
+                    return;
+                }
+                var currentPrice = $("#highestPrice").html();
+                console.log(currentPrice+"-"+price+"-"+(parseInt(currentPrice) >= price));
+                if(parseInt(currentPrice) >= price){
+                    scope.showAlert("您的出价不能低于当前价格");
+                    scope.$apply();
+                    return;
+                }
+                scope.show();
+                scope.$apply();
+
+                $.ajax({
+                    type:"POST",
+                    url:"${request.contextPath}/user-price/add",
+                    data:{userId:userId,userPrice:price,goodsId:goodsId}
+                }).done(function(msg){
+
+                    scope.hide();
+                    scope.$apply();
+
+                    $("#userId").val(msg.currentUserId);
+                    if(msg.currentUserId == msg.highestPrice.userId){
+                        scope.showAlert("当前您的出价最高");
+                        scope.$apply();
+                        $('#bidbtn').prop('disabled',true);
+                        timeId = setInterval(checkPrice, 3000);
+                    }else{
+                        scope.showAlert("当前最高价为"+msg.highestPrice.userPrice);
+                        scope.$apply();
+                    }
+
+
+                });
+            });
+            var checkPrice = function (){
+                var userId = $('#userId').val();
+                $.ajax({
+                    type:"POST",
+                    url:"${request.contextPath}/goods/get-highest-price/"+goodsId
+                }).done(function(msg){
+                    $("#highestPrice").html(msg.userPrice);
+                    if(userId != msg.userId){
+                        scope.showAlert("已经有人出价比您高");
+                        scope.$apply();
+                        $('#bidbtn').prop('disabled',false);
+                        $('#bidbtn').val("继续出价");
+                        clearInterval(timeId);
+                    }
+                });
+            }
+        })
+    </script>
+</head>
+<body>
+<input type="hidden" id="goodsId" value="${goods.goodsId}"/>
+<div ng-controller="PopupCtrl" class="row responsive-sm cardsPanel">
+    <div class="col cardDiv">
+        <div class="tit">
+            <h4 class="balanced">${goods.goodsName}</h4>
+        </div>
+        <div class="item" style="background-color:#66cc33;">
+            <p style="color:#fff"><#if goods.status == "FINISH">竞拍已结束
+                <#elseif goods.status == "AUCTIONING">竞价中
+                    <#else>
+                </#if></p>
+        </div>
+        <div class="item" style="background-image:url(${urlPrefix}/${goods.goodsId}.jpg)">
+            <p class="price" style="color: #FF3333;">市场价格：${goods.marketPrice}</p>
+            <h1 style="color:#cc2311">当前价格：</h1>
+            <br>
+            <h1 style="color:#cc2311"><span id="highestPrice">${goods.highestPrice}</span></h1>
+            <br>
+            <br>
+        </div>
+        <div class="item">
+            ${goods.description}
+        </div>
+        <div id="priceInput" class="list list-inset" >
+            <label class="item item-input">
+                <i class="icon ion-star placeholder-icon"></i>
+                <input type="text" id="userPrice" placeholder="请填写竞价价格">
+            </label>
+        </div>
+        <div id="phoneNo" class="list list-inset" >
+            <label class="item item-input">
+                <i class="icon ion-star placeholder-icon"></i>
+                <input type="text" id="userId" placeholder="请填写手机号码">
+            </label>
+        </div>
+        <div class="jpButton">
+            <#if goods.status == "FINISH">
+                竞拍已结束
+                <#elseif goods.status == "AUCTIONING">
+                    <input type="button" id="bidbtn"
+                           class="button button-block button-assertive ion-chevron-right" value="竞价"/>
+                    <#else>
+            </#if>
+        </div>
+    </div>
+</div>
+<div>
+
+
+</div>
+</body>
+</html>

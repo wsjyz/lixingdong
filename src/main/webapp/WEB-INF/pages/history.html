@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="${request.contextPath}/css/ionic.min.css">
+    <script src="${request.contextPath}/js/ionic.min.js"></script>
+    <script type="text/javascript" src="${request.contextPath}/js/jquery-2.0.0.min.js"></script>
+    <style>
+        .cardsPanel {
+            padding: 10px 20px;
+        }
+    </style>
+    <script type="application/javascript">
+        $(function(){
+            var userId = $('#userId').val();
+            $("#histDiv").html("");//清空info内容
+            $("#histDiv").append(
+                    "<div class=\"item item-divider ion-drag\" style=\"background-color:#cc2311;\">"+
+                            "历史订单"+
+                            "</div>");
+            $.getJSON("${request.contextPath}/user-price/history-list/"+userId, function(data) {
+
+                $.each(data, function(i, item) {
+                    $("#histDiv").append(
+                            "<a class=\"item item-avatar\" href=\"#\">"+
+                            "<img src=\"${request.contextPath}/images/pic7.jpg\">"+
+                            "<h2>成交日期："+item.userPrice.dealTime+"</h2>"+
+                            "<h2>成交价格："+item.userPrice.userPrice+"</h2>"+
+                            "</a>"
+                    );
+                });
+            });
+
+        })
+    </script>
+</head>
+
+<body>
+<input type="hidden" id="userId" value="${userId}" />
+    <div id="histDiv" class="list cardsPanel">
+    </div>
+</body>
+
+</html>

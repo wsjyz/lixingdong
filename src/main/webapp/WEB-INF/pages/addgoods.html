@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>添加竞拍品</title>
+    <script src="${request.contextPath}/js/jquery-2.0.0.min.js"></script>
+    <script type="text/javascript" src="${request.contextPath}/ckeditor/ckeditor.js"></script>
+    <script type="application/javascript">
+        function getText(){
+            alert($('#editor').html());
+        }
+    </script>
+</head>
+<body>
+<input type="button" value="OK" onclick="getText()" />
+<iframe name="resultiframe" src="" style="border: 0px;"></iframe>
+<form id="goodsForm" action="${request.contextPath}/goods/add" method="post"
+      enctype="multipart/form-data" target="resultiframe">
+<div>物品名称:<input type="text" name="goodsName"/></div>
+<div>图片:<input type="file" name="goodsUrlFile"/></div>
+<div>所属区域:<input type="text" name="area"/></div>
+<div>保留价:<input type="text" name="reservePrice"/></div>
+<div>市场价:<input type="text" name="marketPrice"/></div>
+<div>竞拍结束时间:<input type="text" name="finishTime"/></div>
+<!--rich editor-->
+    <textarea rows="30" cols="50" name="description">请输入.</textarea>
+    <script type="text/javascript">CKEDITOR.replace('description');</script>
+    <input type="submit" value="确定"/>
+</form>
+
+</body>
+</html>
