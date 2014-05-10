@@ -3,6 +3,7 @@ package com.lixingdong.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.lixingdong.domain.Goods;
 import com.lixingdong.domain.UserPrice;
+import com.lixingdong.service.GoodsService;
 import com.lixingdong.service.UserPriceService;
 import com.lixingdong.service.bean.HistoryBean;
 import org.apache.commons.collections.CollectionUtils;
@@ -28,6 +29,8 @@ public class UserPriceServiceImpl implements UserPriceService {
     @Autowired
     @Qualifier("redisTemplate")
     private RedisTemplate<String, String> redisTemplate;
+    @Autowired
+    private GoodsService goodsService;
 
     @Override
     public void addUserPrice(UserPrice userPrice) {
@@ -55,9 +58,16 @@ public class UserPriceServiceImpl implements UserPriceService {
                 historyBean.setUserPrice(userPrice);
                 String isFinish = timeIsFinish(goods.getFinishTime());
                 historyBean.setIsFinish(isFinish);
-//                if(){
-//
-//                }
+                if(isFinish.equals("FINISH")){
+                   UserPrice highestPrice = goodsService.getGoodsHighestPrice(goods.getGoodsId());
+                   if(highestPrice.getUserId().equals(userPrice.getUserId())){
+                        historyBean.setResult("恭喜！竞拍成功");
+                   }else{
+                       historyBean.setResult("竞拍未成功");
+                   }
+                }else{
+                    historyBean.setResult("竞拍未结束");
+                }
                 return historyBean;
             }
         });

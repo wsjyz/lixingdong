@@ -49,6 +49,9 @@
             -webkit-border-bottom-right-radius: .3125em;
             border-bottom-right-radius: .3125em;
         }
+        .textLeft p{
+            text-align: left;
+        }
     </style>
     <script type="text/javascript" src="${request.contextPath}/js/jquery-2.0.0.min.js"></script>
     <script type="application/javascript">
@@ -146,15 +149,15 @@
                     <#else>
                 </#if></p>
         </div>
-        <div class="item" style="background-image:url(${urlPrefix}/${goods.goodsId}.jpg)">
+        <div class="item" style="background-image:url(${urlPrefix}/${goods.goodsId}.jpg);background-repeat: no-repeat;background-position:center;background-attachment:fixed;">
             <p class="price" style="color: #FF3333;">市场价格：${goods.marketPrice}</p>
             <h1 style="color:#cc2311">当前价格：</h1>
-            <br>
+            <br> 
             <h1 style="color:#cc2311"><span id="highestPrice">${goods.highestPrice}</span></h1>
             <br>
             <br>
         </div>
-        <div class="item">
+        <div class="item item-body item-text-wrap textLeft">
             ${goods.description}
         </div>
         <div id="priceInput" class="list list-inset" >

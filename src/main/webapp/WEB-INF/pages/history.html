@@ -26,8 +26,10 @@
                     $("#histDiv").append(
                             "<a class=\"item item-avatar\" href=\"#\">"+
                             "<img src=\"${request.contextPath}/images/pic7.jpg\">"+
-                            "<h2>成交日期："+item.userPrice.dealTime+"</h2>"+
-                            "<h2>成交价格："+item.userPrice.userPrice+"</h2>"+
+                            "<h2>竞拍日期："+item.userPrice.dealTime+"</h2>"+
+                            "<h2>竞拍价格："+item.userPrice.userPrice+"</h2>"+
+                            "<h2>竞拍结束时间："+item.goods.finishTime+"</h2>"+
+                            "<h2>状态："+item.result+"</h2>"+
                             "</a>"
                     );
                 });
