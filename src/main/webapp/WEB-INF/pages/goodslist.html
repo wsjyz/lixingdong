@@ -58,7 +58,9 @@
     <script src="${request.contextPath}/js/jquery.mobile-1.4.2.min.js"></script>
     <script type="application/javascript">
         $(function(){
-                $.getJSON("${request.contextPath}/goods/get-list", function(data) {
+                $.getJSON("${request.contextPath}/goods/get-list",
+                        {start:0,end:-1},
+                        function(data) {
                     $("#goodsTable").html("");//清空info内容
                     $.each(data, function(i, item) {
                         $("#contentDiv").append(

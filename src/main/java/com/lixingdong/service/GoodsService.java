@@ -10,11 +10,17 @@ import java.util.List;
  */
 public interface GoodsService {
 
-    void addGoods(Goods goods);
+    Goods saveGoods(Goods goods);
+
+    void removeGoods(String goodsId);
 
     Goods getGoodsById(String goodsId);
 
     UserPrice getGoodsHighestPrice(String goodsId);
 
-    List<Goods> findGoodsList();
+    List<Goods> findGoodsList(long start,long end);
+
+    List<UserPrice> findGoodsPriceList(String goodsId);
+
+    int findGoodsCount();
 }

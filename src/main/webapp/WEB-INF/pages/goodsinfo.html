@@ -68,6 +68,16 @@
                 $("#highestPrice").html(msg.userPrice);
             });
             $('#bidbtn').click(function (e) {
+                var currentTime = new Date().getTime();
+                var finishTime = new Date(Date.parse($('#finishTime').val().replace(/-/g,"/"))).getTime();
+                //console.log(currentTime+"\n"+finishTime);
+                if(finishTime <= currentTime){
+                    scope.showAlert("竞拍已结束");
+                    scope.$apply();
+                    clearInterval(timeId);
+                    $('#bidbtn').prop('disabled',true);
+                    return;
+                }
                 var userId = $('#userId').val();
                 var price = $('#userPrice').val();
 
@@ -138,6 +148,7 @@
 </head>
 <body>
 <input type="hidden" id="goodsId" value="${goods.goodsId}"/>
+<input type="hidden" id="finishTime" value="${goods.finishTime}"/>
 <div ng-controller="PopupCtrl" class="row responsive-sm cardsPanel">
     <div class="col cardDiv">
         <div class="tit">

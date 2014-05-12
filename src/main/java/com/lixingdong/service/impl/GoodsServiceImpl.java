@@ -5,6 +5,7 @@ import com.lixingdong.domain.Goods;
 import com.lixingdong.domain.UserPrice;
 import com.lixingdong.service.GoodsService;
 import com.lixingdong.util.ConfigurationFile;
+import com.lixingdong.util.UUIDGen;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -16,6 +17,10 @@ import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.data.redis.support.collections.RedisCollection;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 /**
@@ -32,11 +37,32 @@ public class GoodsServiceImpl implements GoodsService{
     private ConfigurationFile confBean;
 
     @Override
-    public void addGoods(Goods goods) {
+    public Goods saveGoods(Goods goods) {
         if(goods != null){
-            redisTemplate.boundZSetOps(confBean.getGoodsKey()).add(goods.getGoodsId(),new Date().getTime());
+            if(StringUtils.isBlank(goods.getGoodsId())){
+                goods.setGoodsId(UUIDGen.genShortPK());
+                redisTemplate.boundZSetOps(confBean.getGoodsKey()).add(goods.getGoodsId(),new Date().getTime());
+            }
             String goodsStr = JSON.toJSONString(goods);
             redisTemplate.boundValueOps(goods.getGoodsId()).set(goodsStr);
+            return goods;
+        }else{
+            return null;
+        }
+    }
+
+    @Override
+    public void removeGoods(String goodsId) {
+        int result = redisTemplate.boundZSetOps(confBean.getGoodsKey()).remove(goodsId).intValue();
+        if(redisTemplate.hasKey(goodsId)){
+            redisTemplate.delete(goodsId);
+        }
+        //删除文件
+        Path filePath = Paths.get(confBean.getFileUploadPath()+"/"+goodsId+".jpg");
+        try {
+            Files.deleteIfExists(filePath);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -71,12 +97,12 @@ public class GoodsServiceImpl implements GoodsService{
     }
 
     @Override
-    public List<Goods> findGoodsList() {
+    public List<Goods> findGoodsList(long start,long end) {
         List<String> idList = new ArrayList<String>();
         List<Goods> goodsList = new ArrayList<Goods>();
         //先取出ID
         Set<ZSetOperations.TypedTuple<String>> set =
-                redisTemplate.boundZSetOps(confBean.getGoodsKey()).reverseRangeWithScores(0,-1);
+                redisTemplate.boundZSetOps(confBean.getGoodsKey()).reverseRangeWithScores(start,end);
         Iterator<ZSetOperations.TypedTuple<String>> itor = set.iterator();
         while(itor.hasNext()){
             ZSetOperations.TypedTuple<String> typedTuple = itor.next();
@@ -89,4 +115,26 @@ public class GoodsServiceImpl implements GoodsService{
         }
         return goodsList;
     }
+
+    @Override
+    public List<UserPrice> findGoodsPriceList(String goodsId) {
+        List<UserPrice> priceList = new ArrayList<UserPrice>();
+        Set<ZSetOperations.TypedTuple<String>> set =
+                redisTemplate.boundZSetOps(goodsId+"-price").reverseRangeWithScores(0,-1);
+        Iterator<ZSetOperations.TypedTuple<String>> itor = set.iterator();
+        while(itor.hasNext()){
+            ZSetOperations.TypedTuple<String> typedTuple = itor.next();
+            UserPrice userPrice = new UserPrice();
+            userPrice.setUserId(typedTuple.getValue());
+            userPrice.setUserPrice(typedTuple.getScore().longValue());
+            priceList.add(userPrice);
+        }
+        return priceList;
+    }
+
+    @Override
+    public int findGoodsCount() {
+        return redisTemplate.boundZSetOps(confBean.getGoodsKey()).size().intValue();
+    }
+
 }
