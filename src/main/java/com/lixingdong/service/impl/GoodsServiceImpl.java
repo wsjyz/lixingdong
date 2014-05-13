@@ -6,6 +6,8 @@ import com.lixingdong.domain.UserPrice;
 import com.lixingdong.service.GoodsService;
 import com.lixingdong.util.ConfigurationFile;
 import com.lixingdong.util.UUIDGen;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -108,11 +110,14 @@ public class GoodsServiceImpl implements GoodsService{
             ZSetOperations.TypedTuple<String> typedTuple = itor.next();
             idList.add(typedTuple.getValue());
         }
-        for(String goodsId:idList){
-            String goodsStr = redisTemplate.boundValueOps(goodsId).get();
-            Goods goods = JSON.parseObject(goodsStr,Goods.class);
-            goodsList.add(goods);
-        }
+        List<String> goodsStrList = redisTemplate.opsForValue().multiGet(idList);
+        goodsList = (List<Goods>)CollectionUtils.collect(goodsStrList,new Transformer() {
+            @Override
+            public Object transform(Object o) {
+                Goods goods = JSON.parseObject(o.toString(),Goods.class);
+                return goods;
+            }
+        });
         return goodsList;
     }
 
