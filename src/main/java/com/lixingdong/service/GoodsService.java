@@ -12,6 +12,8 @@ public interface GoodsService {
 
     Goods saveGoods(Goods goods);
 
+    void increaseFlowerCounts(Goods goods,int step);
+
     void removeGoods(String goodsId);
 
     Goods getGoodsById(String goodsId);

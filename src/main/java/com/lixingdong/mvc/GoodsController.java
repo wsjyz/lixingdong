@@ -109,6 +109,8 @@ public class GoodsController {
         } catch (ParseException e) {
             e.printStackTrace();
         }
+        //关注人数+1
+        goodsService.increaseFlowerCounts(goods,1);
         model.addAttribute("goods",goods);
 
 //        String userId = CookieUtil.findCookie(request,"userIdCookie");

@@ -24,6 +24,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Created by dam on 14-5-6.
@@ -51,6 +53,11 @@ public class GoodsServiceImpl implements GoodsService{
         }else{
             return null;
         }
+    }
+    public void increaseFlowerCounts(Goods goods,int step){
+        AtomicLong counts = new AtomicLong(goods.getFollowerCounts());
+        goods.setFollowerCounts(counts.addAndGet(step));
+        saveGoods(goods);
     }
 
     @Override
