@@ -71,4 +71,14 @@ public class UserPriceController {
         }
         return historyBeanList;
     }
+    @ResponseBody
+    @RequestMapping(value = "/manage/delete/{userId}/{goodsId}")
+    public String delete(@PathVariable String userId,@PathVariable String goodsId){
+        String result = "error";
+        if(StringUtils.isNotBlank(userId)){
+            userPriceService.deletePrice(userId,goodsId);
+            result = "success";
+        }
+        return result;
+    }
 }

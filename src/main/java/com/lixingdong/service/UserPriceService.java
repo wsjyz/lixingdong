@@ -13,4 +13,6 @@ public interface UserPriceService {
     void addUserPrice(UserPrice userPrice);
 
     List<HistoryBean> getUserHistory(String userId);
+
+    void deletePrice(String userId,String goodsId);
 }

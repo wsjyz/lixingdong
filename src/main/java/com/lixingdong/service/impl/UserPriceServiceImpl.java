@@ -72,6 +72,13 @@ public class UserPriceServiceImpl implements UserPriceService {
             }
         });
     }
+
+    @Override
+    public void deletePrice(String userId,String goodsId) {
+        redisTemplate.boundZSetOps(goodsId +"-price").remove(userId);
+        redisTemplate.boundListOps(userId+"-price").remove(1,goodsId);
+    }
+
     private String timeIsFinish(String finishTimeStr){
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         try {

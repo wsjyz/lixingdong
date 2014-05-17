@@ -5,16 +5,28 @@
     <script type="text/javascript" src="${request.contextPath}/js/jquery-2.0.0.min.js"></script>
     <script src="${request.contextPath}/js/jquery.livequery.min.js"></script>
     <script type="application/javascript">
+
+        function deletePrice(userId,goodsId){
+            var goodsId = $('#goodsId').val();
+            $.ajax({
+                type:"GET",
+                url:"${request.contextPath}/user-price/manage/delete/"+userId+"/"+goodsId
+            }).done(function(msg){
+                $('#'+userId).remove();
+            });
+        }
         $(function(){
+
             var goodsId = $('#goodsId').val();
             $.getJSON("${request.contextPath}/goods/manage/get-price-list/"+goodsId, function(data) {
                 $("#roomList").html("");//清空info内容
                 $.each(data, function(i, item) {
                     $("#roomList").append(
-                            "<tr>"+
+                            "<tr id='"+item.userId+"'>"+
                                     "<td>" + (i+1) + "</td>" +
                                     "<td>" + item.userId + "</td>" +
                                     "<td>" + item.userPrice + "</td>"+
+                                    "<td><a href='javascript:deletePrice("+item.userId+");' >删除</a></td>"+
                             "<tr>"
                     );
                 });
@@ -45,6 +57,7 @@
             <th>#</th>
             <th>电话</th>
             <th>价格</th>
+            <th>操作</th>
         </tr>
         </thead>
         <tbody id="roomList">

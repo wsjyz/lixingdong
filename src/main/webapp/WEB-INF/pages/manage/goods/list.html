@@ -29,14 +29,17 @@
     <script src="${request.contextPath}/js/jquery.livequery.min.js"></script>
     <script type="text/javascript" charset="utf-8">
         var deleteGoods = function (goodsId){
-            $('#popup2').bPopup({
-                content:'ajax', //'ajax', 'iframe' or 'image'
-                contentContainer:'.content',
-                loadUrl:'${request.contextPath}/goods/manage/delete/'+goodsId, //Uses jQuery.load()
-                onClose:function(){
-                    window.location.reload();
-                }
-            });
+            if(confirm("你是否要删除？")){
+                $('#popup2').bPopup({
+                    content:'ajax', //'ajax', 'iframe' or 'image'
+                    contentContainer:'.content',
+                    scrollBar:true,
+                    loadUrl:'${request.contextPath}/goods/manage/delete/'+goodsId, //Uses jQuery.load()
+                    onClose:function(){
+                        window.location.reload();
+                    }
+                });
+            }
         }
         var toEdit = function(goodsId){
             window.location.href = "${request.contextPath}/goods/toadd?goodsId="+goodsId;
@@ -45,6 +48,7 @@
             $('#popup2').bPopup({
                 content:'iframe', //'ajax', 'iframe' or 'image'
                 contentContainer:'.content',
+                iframeAttr:'scrolling="yes"',
                 loadUrl:'${request.contextPath}/goods/manage/to-price-list/'+goodsId, //Uses jQuery.load()
                 onClose:function(){
                     //window.location.reload();
